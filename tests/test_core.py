@@ -29,7 +29,7 @@ class CoreTests(unittest.TestCase):
         self.config.unlink()
         result = self.run_cli('--version')
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn('xcmd 0.1.0', result.stdout)
+        self.assertIn('xcmd 0.1.1', result.stdout)
         self.assertIn('--install-completion', self.run_cli('--help').stdout)
 
     def test_new_config_override_takes_priority_over_legacy_override(self):

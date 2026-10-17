@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1
+
+- Use standard AOSP SystemUI names in all documentation examples.
+
 ## 0.1.0
 
 - Package the original Linux helper as a Python CLI with no runtime dependencies.

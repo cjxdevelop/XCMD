@@ -7,7 +7,7 @@ Type `xcmd p`, press **Tab**, inspect the configured command and press Enter to 
 No runtime dependencies beyond Python and your shell.
 
 ```text
-push-SystemUI -- adb push ZuiSystemUI.apk /system_ext/priv-app/ZuiSystemUI/ZuiSystemUI.apk
+push-SystemUI -- adb push SystemUI.apk /system_ext/priv-app/SystemUI/SystemUI.apk
 stop-system_server -- adb shell stop
 ```
 
@@ -35,7 +35,7 @@ xcmd --init
 You can also install directly with `pipx install git+https://github.com/cjxdevelop/XCMD.git`.
 
 Or install into your own virtual environment with `python -m pip install .`.
-Install a built wheel using `python -m pip install path/to/xcmd_tool-0.1.0-py3-none-any.whl`.
+Install a built wheel using `python -m pip install path/to/xcmd_tool-0.1.1-py3-none-any.whl`.
 The distribution name is `xcmd-tool`; the command is `xcmd`.
 This checkout does not assume a package has already been published to PyPI.
 
@@ -153,7 +153,7 @@ Tests that need an unavailable shell are explicitly skipped. See
 ## Release a version
 
 Update `pyproject.toml` and `src/xcmd/__init__.py` to the same version, commit the
-change, then push a matching tag (for example, `git push origin v0.1.0`). The tag
+change, then push a matching tag (for example, `git push origin v0.1.1`). The tag
 workflow waits for all Windows/Linux checks, builds and verifies the package,
 then publishes a GitHub Release with the wheel, source distribution and SHA256
 checksums. The release remains a draft until every asset has been uploaded.
