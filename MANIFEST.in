@@ -1,0 +1,7 @@
+include LICENSE README.md README.zh-CN.md CONTRIBUTING.md CHANGELOG.md
+include xcmd install.py completion.bash commands.conf
+include .github/workflows/ci.yml
+include .gitignore
+recursive-include scripts *.py
+recursive-include tests *.py
+recursive-include src/xcmd/resources *.bash *.ps1 *.conf

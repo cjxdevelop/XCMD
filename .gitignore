@@ -218,3 +218,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# xcmd local artifacts
+*.py[cod]
+.venv/
+commands.local.conf
+*.bak.*
+.DS_Store
