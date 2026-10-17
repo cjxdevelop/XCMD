@@ -50,7 +50,7 @@ xcmd --edit
 
 ```text
 # 名称 -- 命令；-- 两侧需要空白
-hello -- echo Hello from xcmd
+hello -- echo 'Hello from xcmd'
 push-SystemUI -- adb push ZuiSystemUI.apk /system_ext/priv-app/ZuiSystemUI/ZuiSystemUI.apk
 stop-system_server -- adb shell stop
 

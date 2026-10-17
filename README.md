@@ -81,7 +81,7 @@ letter, number or `_`. UTF-8, UTF-8 BOM and CRLF files are accepted.
 
 ```text
 # Shared commands: this syntax works in both shells.
-hello -- echo Hello from xcmd
+hello -- echo 'Hello from xcmd'
 pull -- adb pull
 
 [linux]

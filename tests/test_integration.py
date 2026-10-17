@@ -144,6 +144,14 @@ ConvertTo-Json -InputObject $result -Compress
         self.assertIn('push-test', data['show'])
 
     @unittest.skipUnless(POWERSHELL, 'PowerShell is not installed')
+    def test_sample_hello_prints_one_line_in_powershell(self):
+        self.env['XCMD_POWERSHELL'] = POWERSHELL
+        self.config.write_bytes((ROOT / 'commands.conf').read_bytes())
+        result = self.run_cli('--shell', 'powershell', 'hello')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.strip(), 'Hello from xcmd')
+
+    @unittest.skipUnless(POWERSHELL, 'PowerShell is not installed')
     def test_powershell_execution_quoting_errors_and_exit_status(self):
         self.env['XCMD_POWERSHELL'] = POWERSHELL
         self.config.write_text('args -- Write-Output\nfail -- exit 23\n'

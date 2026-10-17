@@ -5,6 +5,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import traceback
 import venv
 
 
@@ -41,4 +42,10 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except Exception:
+        if os.environ.get('GITHUB_ACTIONS'):
+            details = traceback.format_exc().replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+            print('::error::' + details, flush=True)
+        raise
