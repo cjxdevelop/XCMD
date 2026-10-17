@@ -100,4 +100,6 @@ python scripts/check_wheel.py dist
 
 仓库包含 Windows/Linux CI，Windows 同时验证 PowerShell 5.1 和 7；本机缺少对应 Shell 时，相关测试会明确跳过。贡献方式见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
+发布新版本时，将 `pyproject.toml` 与 `src/xcmd/__init__.py` 的版本保持一致，提交后创建并推送相应的 `v` 标签。工作流会等待 Windows/Linux 全部检查通过，构建并验证安装包，再发布附有 wheel、源码包和 SHA256 校验文件的 GitHub Release；全部附件上传成功后才公开 Release。
+
 卸载时移除 profile 中带标记的 xcmd 补全块，再使用原包管理方式卸载。配置文件默认保留。Apache-2.0 许可证见 [LICENSE](LICENSE)。

@@ -150,6 +150,14 @@ CI covers Linux and Windows, including Windows PowerShell 5.1 and PowerShell 7.
 Tests that need an unavailable shell are explicitly skipped. See
 [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
+## Release a version
+
+Update `pyproject.toml` and `src/xcmd/__init__.py` to the same version, commit the
+change, then push a matching tag (for example, `git push origin v0.1.0`). The tag
+workflow waits for all Windows/Linux checks, builds and verifies the package,
+then publishes a GitHub Release with the wheel, source distribution and SHA256
+checksums. The release remains a draft until every asset has been uploaded.
+
 ## Uninstall
 
 Remove the marked xcmd completion block from your shell profile, then run
