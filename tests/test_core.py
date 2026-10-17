@@ -91,7 +91,7 @@ class CoreTests(unittest.TestCase):
         self.config.write_text(f'where -- {command}\nfail -- exit 23\n', encoding='utf-8')
         result = self.run_cli('where')
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(Path(result.stdout.strip()), self.work)
+        self.assertTrue(Path(result.stdout.strip()).samefile(self.work))
         self.assertEqual(self.run_cli('fail').returncode, 23)
 
     def test_extra_arguments_are_data_in_both_shells(self):

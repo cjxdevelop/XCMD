@@ -31,7 +31,8 @@ class IntegrationTests(unittest.TestCase):
             with self.subTest(shell=shell):
                 profile = self.work / f'{shell} profile'
                 original = '# existing user configuration\n'
-                profile.write_text(original, encoding='utf-8')
+                profile.write_bytes(original.replace('\n', '\r\n').encode('utf-8'))
+                original_bytes = profile.read_bytes()
                 for _ in range(2):
                     result = self.run_cli('--install-completion', shell, '--profile', str(profile))
                     self.assertEqual(result.returncode, 0, result.stderr)
@@ -40,7 +41,7 @@ class IntegrationTests(unittest.TestCase):
                 self.assertEqual(updated.count('# >>> xcmd completion >>>'), 1)
                 backups = list(self.work.glob(profile.name + '.xcmd.bak.*'))
                 self.assertEqual(len(backups), 1)
-                self.assertEqual(backups[0].read_bytes(), original.encode())
+                self.assertEqual(backups[0].read_bytes(), original_bytes)
                 self.assertEqual(self.config.read_text(encoding='utf-8'), 'push-test -- echo 中文\n')
 
     def test_powershell_profile_utf16_is_preserved(self):
