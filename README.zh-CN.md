@@ -14,8 +14,10 @@
 git clone https://github.com/cjxdevelop/XCMD.git
 cd XCMD
 pipx install .
-xcmd --init
+pipx ensurepath
 ```
+
+执行 `pipx ensurepath` 后，关闭并重新打开终端，再运行 `xcmd --init`。
 
 也可直接运行 `pipx install git+https://github.com/cjxdevelop/XCMD.git`。
 
@@ -29,6 +31,10 @@ eval "$(xcmd --completion bash)"
 ```
 
 Windows/PowerShell：
+
+如果通过 pipx 安装后找不到 `xcmd`，运行 `py -m pipx ensurepath`，关闭终端应用后重新打开，再执行 `Get-Command xcmd` 和 `xcmd --version`。
+
+如果通过 pip 安装 wheel，先用安装时的同一个 Python 执行 `py -m xcmd --version`（按实际情况将 `py` 替换为安装时的 Python 命令）。若模块可以运行而 `xcmd --version` 找不到，将安装生成的 `xcmd.exe` 所在目录加入用户环境变量 `Path`，然后重开终端；pip 的脚本目录警告会显示该路径。若安装在虚拟环境中，需要先激活该环境。也可用 `py -m pip show -f xcmd-tool` 查看安装文件位置。若模块也提示 `No module named xcmd`，需核对安装使用的 Python 或 pipx 环境。
 
 ```powershell
 xcmd --install-completion powershell --profile "$PROFILE"

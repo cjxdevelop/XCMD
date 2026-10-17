@@ -29,8 +29,10 @@ Clone [XCMD](https://github.com/cjxdevelop/XCMD), then open its directory. With 
 git clone https://github.com/cjxdevelop/XCMD.git
 cd XCMD
 pipx install .
-xcmd --init
+pipx ensurepath
 ```
+
+Reopen your terminal after `pipx ensurepath`, then run `xcmd --init`.
 
 You can also install directly with `pipx install git+https://github.com/cjxdevelop/XCMD.git`.
 
@@ -48,6 +50,20 @@ eval "$(xcmd --completion bash)"
 ```
 
 ### Windows / PowerShell
+
+If PowerShell cannot find `xcmd` after a pipx installation, run
+`py -m pipx ensurepath`, close the terminal application and reopen it, then check
+`Get-Command xcmd` and `xcmd --version`.
+
+For a wheel installed with pip, use the same Python interpreter that installed
+it to check `py -m xcmd --version` (replace `py` with your installation's Python
+command when needed). If this works while `xcmd --version` does not, add the
+directory containing the installed `xcmd.exe` to your user `Path` and reopen
+the terminal. Pip prints that directory when it warns that scripts are not on
+`PATH`. If you installed into a virtual environment, activate that environment
+first. `py -m pip show -f xcmd-tool` helps identify the package and launcher
+location. If `py -m xcmd` reports `No module named xcmd`, check which Python or
+pipx environment was used to install the package.
 
 ```powershell
 xcmd --install-completion powershell --profile "$PROFILE"
