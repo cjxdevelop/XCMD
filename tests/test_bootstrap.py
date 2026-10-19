@@ -20,11 +20,13 @@ class BootstrapTests(unittest.TestCase):
         cls.temporary = tempfile.TemporaryDirectory(prefix='xcmd-bootstrap-package-')
         cls.addClassCleanup(cls.temporary.cleanup)
         cls.package = Path(cls.temporary.name)
-        subprocess.run([sys.executable, '-m', 'pip', 'wheel', '--no-deps',
-                        '--no-build-isolation', str(ROOT), '-w', str(cls.package)],
-                       check=True, capture_output=True)
+        result = subprocess.run([sys.executable, '-m', 'pip', 'wheel', '--no-deps',
+                                 '--no-build-isolation', str(ROOT), '-w', str(cls.package)],
+                                capture_output=True, text=True, encoding='utf-8')
+        if result.returncode:
+            raise RuntimeError(result.stdout + '\n' + result.stderr)
         cls.wheel = next(cls.package.glob('*.whl'))
-        cls.venv = cls.package / 'environment with spaces'
+        cls.venv = cls.package / 'environment caf\u00e9 with spaces'
         venv.EnvBuilder(with_pip=False).create(cls.venv)
         cls.bin = cls.venv / ('Scripts' if os.name == 'nt' else 'bin')
         python = cls.bin / ('python.exe' if os.name == 'nt' else 'python')
@@ -73,7 +75,7 @@ if args[:1] == ['environment']:
                   'function pipx { & $env:BOOTSTRAP_PYTHON $env:BOOTSTRAP_STUB @args }\n'
                   f'$PROFILE = {quote(self.profile)}\n')
         return subprocess.run([POWERSHELL, '-NoProfile', '-Command', prefix + body],
-                              env=self.env, text=True, capture_output=True, encoding='utf-8')
+                              env=self.env, text=True, capture_output=True, encoding='utf-8', errors='replace')
 
     @unittest.skipUnless(os.name != 'nt' and shutil.which('bash'), 'Bash installer')
     def test_bash_install_enables_current_and_future_sessions(self):
@@ -195,6 +197,33 @@ Write-Output ('MATCH:' + (((TabExpansion2 'xc p' 4).CompletionMatches | ForEach-
         self.assertNotEqual(result.returncode, 0)
         self.assertIn('did not expose', result.stderr)
         self.assertFalse(self.config.exists())
+
+    @unittest.skipUnless(POWERSHELL, 'PowerShell installer')
+    def test_powershell_non_utf8_console_preserves_unicode_paths_and_encoding(self):
+        script = str(ROOT / 'install.ps1').replace("'", "''")
+        result = self.powershell(f'''[Console]::OutputEncoding = [Text.Encoding]::GetEncoding(437)
+$env:PYTHONIOENCODING = 'ascii'
+. '{script}'
+$restoredCodePage = [Console]::OutputEncoding.CodePage
+[Console]::OutputEncoding = New-Object System.Text.UTF8Encoding $false
+if ($restoredCodePage -ne 437) {{ throw 'Console encoding changed' }}
+if ($env:PYTHONIOENCODING -ne 'ascii') {{ throw 'Python encoding setting changed' }}
+Write-Output ('MATCH:' + (((TabExpansion2 'xc h' 4).CompletionMatches | ForEach-Object {{ $_.CompletionText }}) -join ','))
+''')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('MATCH:hello', result.stdout)
+
+    @unittest.skipUnless(POWERSHELL, 'PowerShell installer')
+    def test_powershell_existing_xc_function_is_preserved_and_install_reports_conflict(self):
+        script = str(ROOT / 'install.ps1').replace("'", "''")
+        result = self.powershell(f'''function xc {{ 'ORIGINAL' }}
+try {{ . '{script}' }} catch {{ Write-Output ('BLOCKED:' + $_.Exception.Message) }}
+xc --version
+''')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('BLOCKED:', result.stdout)
+        self.assertIn('ORIGINAL', result.stdout)
+        self.assertNotIn('completion enabled', result.stdout.lower())
 
 
 if __name__ == '__main__':

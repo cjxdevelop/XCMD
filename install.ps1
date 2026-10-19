@@ -7,6 +7,11 @@ param(
 & {
     param($PackageSpec, $CurrentProfile)
     $ErrorActionPreference = 'Stop'
+    $previousEncoding = [Console]::OutputEncoding
+    $previousPythonEncoding = $env:PYTHONIOENCODING
+    try {
+    [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding $false
+    $env:PYTHONIOENCODING = 'utf-8'
     $pipxCommand = Get-Command pipx -ErrorAction SilentlyContinue
     $pipxPrefix = @()
     if (-not $pipxCommand) {
@@ -50,6 +55,10 @@ param(
     if (($env:PATH -split [IO.Path]::PathSeparator) -notcontains $bin) {
         $env:PATH = $bin + [IO.Path]::PathSeparator + $env:PATH
     }
+    $resolved = Get-Command xc -ErrorAction SilentlyContinue
+    if (-not $resolved -or $resolved.CommandType -ne 'Application' -or $resolved.Path -ne $executable) {
+        throw 'xc: an unrelated xc command shadows the installed launcher; the existing command has been preserved.'
+    }
     & $executable --init
     if ($LASTEXITCODE -ne 0) { throw 'xc: configuration initialization failed.' }
     & $executable --install-completion powershell --profile $CurrentProfile
@@ -64,5 +73,9 @@ param(
         Write-Warning 'The current execution policy blocks profile scripts in future sessions. Ask your administrator which profile policy is permitted; xcmd has not changed the policy.'
     } else {
         Write-Output "Future PowerShell sessions load completion from: $CurrentProfile"
+    }
+    } finally {
+        [Console]::OutputEncoding = $previousEncoding
+        $env:PYTHONIOENCODING = $previousPythonEncoding
     }
 } $Package $PROFILE
