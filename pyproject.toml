@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "xcmd-tool"
-version = "0.1.1"
+version = "0.1.2"
 description = "Named shell commands and dynamic completion from a plain text file"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -23,6 +23,7 @@ classifiers = [
 ]
 
 [project.scripts]
+xc = "xcmd.cli:main"
 xcmd = "xcmd.cli:main"
 
 [tool.setuptools.packages.find]

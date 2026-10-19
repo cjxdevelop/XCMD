@@ -25,7 +25,7 @@ def main():
         venv.EnvBuilder(with_pip=False).create(environment)
         bin_dir = environment / ('Scripts' if os.name == 'nt' else 'bin')
         python = bin_dir / ('python.exe' if os.name == 'nt' else 'python')
-        executable = bin_dir / ('xcmd.exe' if os.name == 'nt' else 'xcmd')
+        executable = bin_dir / ('xc.exe' if os.name == 'nt' else 'xc')
         subprocess.run([sys.executable, '-m', 'pip', '--python', str(python),
                         'install', '--no-index', '--no-deps', str(wheel)], check=True)
         env = dict(os.environ, XCMD_CONFIG=str(work / 'commands.conf'), PYTHONUTF8='1')
@@ -34,7 +34,7 @@ def main():
             return subprocess.run([str(executable), *args], cwd=work, env=env,
                                   check=True, capture_output=True, text=True, encoding='utf-8').stdout
 
-        assert run('--version').strip() == 'xcmd ' + expected_version
+        assert run('--version').strip() == 'xc ' + expected_version
         run('--init')
         assert run('hello').strip() == 'Hello from xcmd'
         assert json.loads(run('--complete-json', 'h'))[0]['name'] == 'hello'

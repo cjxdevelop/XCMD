@@ -10,7 +10,7 @@ from .config import config_path, init_config, read_commands
 from .execution import command_line, execute
 
 
-HELP = '''Usage: xcmd [--shell bash|powershell] NAME [ARGUMENTS...]
+HELP = '''Usage: xc [--shell bash|powershell] NAME [ARGUMENTS...]
 
   --list                         List names and commands (also the default)
   --show NAME                    Show a command without executing it
@@ -34,14 +34,14 @@ def run(arguments):
     shell = 'powershell' if os.name == 'nt' else 'bash'
     if args[:1] == ['--shell']:
         if len(args) < 3 or args[1] not in ('bash', 'powershell'):
-            raise ValueError('usage: xcmd --shell bash|powershell NAME [ARGUMENTS...]')
+            raise ValueError('usage: xc --shell bash|powershell NAME [ARGUMENTS...]')
         shell, args = args[1], args[2:]
     path = config_path()
     if args in (['--help'], ['-h']):
         print(HELP, end='')
         return 0
     if args == ['--version']:
-        print(f'xcmd {__version__}')
+        print(f'xc {__version__}')
         return 0
     if args == ['--config']:
         print(path)
@@ -53,7 +53,7 @@ def run(arguments):
     if args[:1] == ['--completion']:
         from .integration import render_completion
         if len(args) != 2:
-            raise ValueError('usage: xcmd --completion bash|powershell')
+            raise ValueError('usage: xc --completion bash|powershell')
         print(render_completion(args[1]), end='')
         return 0
     if args[:1] == ['--install-completion']:
@@ -63,7 +63,7 @@ def run(arguments):
         elif len(args) == 4 and args[2] == '--profile':
             profile = args[3]
         else:
-            raise ValueError('usage: xcmd --install-completion SHELL [--profile PATH]')
+            raise ValueError('usage: xc --install-completion SHELL [--profile PATH]')
         print(f'Completion installed: {install_completion(args[1], profile)}')
         return 0
     if args == ['--edit']:
@@ -97,14 +97,14 @@ def run(arguments):
         return 0
     if args[0] == '--show':
         if len(args) != 2:
-            raise ValueError('usage: xcmd --show NAME')
+            raise ValueError('usage: xc --show NAME')
         name = args[1]
     else:
         if args[0].startswith('-'):
-            raise ValueError(f'unknown option: {args[0]}; use xcmd --help')
+            raise ValueError(f'unknown option: {args[0]}; use xc --help')
         name = args[0]
     if name not in commands:
-        raise ValueError(f'unknown command: {name}; use xcmd --list')
+        raise ValueError(f'unknown command: {name}; use xc --list')
     if args[0] == '--show':
         print(commands[name])
         return 0
@@ -121,7 +121,7 @@ def main(argv=None):
     try:
         return run(sys.argv[1:] if argv is None else argv)
     except (OSError, UnicodeError, ValueError) as error:
-        print(f'xcmd: {error}', file=sys.stderr)
+        print(f'xc: {error}', file=sys.stderr)
         return 2
     except KeyboardInterrupt:
         return 130

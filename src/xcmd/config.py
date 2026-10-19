@@ -27,7 +27,7 @@ def read_commands(path, platform=None):
     try:
         content = path.read_text(encoding='utf-8-sig')
     except FileNotFoundError:
-        raise ValueError(f'{path}: config not found; run xcmd --init') from None
+        raise ValueError(f'{path}: config not found; run xc --init') from None
     for number, raw in enumerate(content.splitlines(), 1):
         line = raw.strip()
         if not line or line.startswith('#'):

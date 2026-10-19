@@ -29,6 +29,8 @@ def render_completion(shell):
     source_entry = Path(__file__).resolve().parents[2] / 'xcmd'
     console_entry = Path(sys.executable).parent / ('xcmd.exe' if sys.platform == 'win32' else 'xcmd')
     for marker, value in (('@PYTHON@', sys.executable), ('@RUNNER@', str(runner)),
+                          ('@XC_SOURCE_ENTRY@', str(source_entry.with_name('xc'))),
+                          ('@XC_CONSOLE_ENTRY@', str(console_entry.with_name('xc.exe' if sys.platform == 'win32' else 'xc'))),
                           ('@SOURCE_ENTRY@', str(source_entry)), ('@CONSOLE_ENTRY@', str(console_entry))):
         template = template.replace(marker, quote(value))
     return template

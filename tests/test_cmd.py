@@ -114,7 +114,7 @@ xcmd
 '''
         result = subprocess.run(['bash', '--noprofile', '--norc', '-c', script],
                                 env=self.env, text=True, capture_output=True)
-        self.assertIn('LOAD:1', result.stdout)
+        self.assertIn('LOAD:0', result.stdout)
         self.assertTrue(result.stdout.endswith('original'), result.stdout)
         self.assertIn('xcmd', result.stderr)
 
@@ -241,6 +241,8 @@ class InstallTests(unittest.TestCase):
             self.assertFalse(old_xcmd.is_symlink())
             self.assertTrue((home / 'bin/xcmd').is_symlink())
             self.assertEqual((home / 'bin/xcmd').resolve(), home / 'bin/cmd-tool/xcmd')
+            self.assertTrue((home / 'bin/xc').is_symlink())
+            self.assertEqual((home / 'bin/xc').resolve(), home / 'bin/cmd-tool/xc')
             self.assertEqual(config.read_text(), 'mine -- printf preserved\n')
 
     def test_upgrade_preserves_unrelated_legacy_cmd_entry(self):

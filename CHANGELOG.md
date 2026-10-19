@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.2
+
+- Shorten the command to `xc`, retaining `xcmd` as a compatibility entry.
+
+- Add one-command installation for Ubuntu/Bash and Windows/PowerShell.
+- Configure PATH, preserve existing commands and enable completion immediately.
+- Verify actual pipx installation and repeat installation in Windows/Linux CI.
+- Include version-pinned installer scripts and their SHA256 checksums in releases.
+
 ## 0.1.1
 
 - Use standard AOSP SystemUI names in all documentation examples.

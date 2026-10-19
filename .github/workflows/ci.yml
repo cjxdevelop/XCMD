@@ -18,7 +18,7 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
-      - run: python -m pip install --upgrade pip build
+      - run: python -m pip install --upgrade pip build pipx
       - run: python -m pip install .
       - run: python scripts/ci_tests.py
       - name: Windows PowerShell 5.1
@@ -30,6 +30,7 @@ jobs:
           exit $LASTEXITCODE
       - run: python -m build
       - run: python scripts/check_wheel.py dist
+      - run: python scripts/check_bootstrap.py dist
 
   release:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
@@ -61,12 +62,14 @@ jobs:
       - name: Generate SHA256 checksums
         run: |
           python - <<'PY'
-          import hashlib
+          import hashlib, shutil
           from pathlib import Path
           folder = Path('dist')
-          files = sorted([*folder.glob('*.whl'), *folder.glob('*.tar.gz')])
-          if len(files) != 2:
-              raise SystemExit('Expected one wheel and one source distribution')
+          for name in ('install.sh', 'install.ps1'):
+              shutil.copyfile(name, folder / name)
+          files = sorted([*folder.glob('*.whl'), *folder.glob('*.tar.gz'), folder / 'install.sh', folder / 'install.ps1'])
+          if len(files) != 4:
+              raise SystemExit('Expected one wheel, one source distribution and two installers')
           lines = [hashlib.sha256(p.read_bytes()).hexdigest() + '  ' + p.name for p in files]
           (folder / 'SHA256SUMS.txt').write_text('\n'.join(lines) + '\n')
           PY
@@ -76,5 +79,5 @@ jobs:
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
           gh release create "$RELEASE_TAG" --verify-tag --draft --title "XCMD $RELEASE_TAG" --notes-file CHANGELOG.md
-          gh release upload "$RELEASE_TAG" dist/*.whl dist/*.tar.gz dist/SHA256SUMS.txt
+          gh release upload "$RELEASE_TAG" dist/*.whl dist/*.tar.gz dist/install.sh dist/install.ps1 dist/SHA256SUMS.txt
           gh release edit "$RELEASE_TAG" --draft=false --latest

@@ -3,7 +3,7 @@
 [简体中文](README.zh-CN.md)
 
 Run named shell commands from a plain text file, with dynamic completion.
-Type `xcmd p`, press **Tab**, inspect the configured command and press Enter to run.
+Type `xc p`, press **Tab**, inspect the configured command and press Enter to run.
 No runtime dependencies beyond Python and your shell.
 
 ```text
@@ -21,7 +21,37 @@ stop-system_server -- adb shell stop
 Python 3.10+ is required. Windows execution prefers `pwsh`, then falls back to
 `powershell`. Windows `cmd.exe`, Zsh and Fish completion are outside this release.
 
-## Install from source or a release archive
+## One-command installation
+
+Requires Python 3.10+ and an installed [pipx](https://pipx.pypa.io/stable/installation/).
+Run the command for your current shell:
+
+Ubuntu / Bash:
+
+```bash
+source <(curl -fsSL https://github.com/cjxdevelop/XCMD/releases/download/v0.1.2/install.sh)
+```
+
+Windows / PowerShell 5.1 or 7+:
+
+```powershell
+irm https://github.com/cjxdevelop/XCMD/releases/download/v0.1.2/install.ps1 | iex
+```
+
+The installer installs or reinstalls this release through pipx, configures PATH,
+creates a sample configuration only when none exists, and enables completion in
+the current terminal and future sessions. Existing command configuration is
+preserved. You can immediately use `xc --list` and complete configured names.
+No separate completion commands or terminal restart are needed. PowerShell's
+execution policy is retained; a policy that blocks profiles still prevents
+automatic loading in future sessions.
+
+You can inspect the versioned scripts in this repository or download the Release
+attachments and run `source ./install.sh` or `. ./install.ps1`. To install a local
+wheel, use `source ./install.sh /path/to/package.whl` or
+`. ./install.ps1 -Package C:\path\to\package.whl`.
+
+## Manual installation
 
 Clone [XCMD](https://github.com/cjxdevelop/XCMD), then open its directory. With [pipx](https://pipx.pypa.io/):
 
@@ -32,33 +62,33 @@ pipx install .
 pipx ensurepath
 ```
 
-Reopen your terminal after `pipx ensurepath`, then run `xcmd --init`.
+Reopen your terminal after `pipx ensurepath`, then run `xc --init`.
 
 You can also install directly with `pipx install git+https://github.com/cjxdevelop/XCMD.git`.
 
 Or install into your own virtual environment with `python -m pip install .`.
-Install a built wheel using `python -m pip install path/to/xcmd_tool-0.1.1-py3-none-any.whl`.
-The distribution name is `xcmd-tool`; the command is `xcmd`.
+Install a built wheel using `python -m pip install path/to/xcmd_tool-0.1.2-py3-none-any.whl`.
+The distribution name is `xcmd-tool`; the command is `xc`. The previous `xcmd` entry remains available as a compatibility alias. Configuration paths and environment variables are retained.
 This checkout does not assume a package has already been published to PyPI.
 
 ### Linux / Bash
 
 ```bash
-xcmd --install-completion bash
+xc --install-completion bash
 # Enable it in the current terminal too:
-eval "$(xcmd --completion bash)"
+eval "$(xc --completion bash)"
 ```
 
 ### Windows / PowerShell
 
-If PowerShell cannot find `xcmd` after a pipx installation, run
+If PowerShell cannot find `xc` after a pipx installation, run
 `py -m pipx ensurepath`, close the terminal application and reopen it, then check
-`Get-Command xcmd` and `xcmd --version`.
+`Get-Command xc` and `xc --version`.
 
 For a wheel installed with pip, use the same Python interpreter that installed
 it to check `py -m xcmd --version` (replace `py` with your installation's Python
-command when needed). If this works while `xcmd --version` does not, add the
-directory containing the installed `xcmd.exe` to your user `Path` and reopen
+command when needed). If this works while `xc --version` does not, add the
+directory containing the installed `xc.exe` to your user `Path` and reopen
 the terminal. Pip prints that directory when it warns that scripts are not on
 `PATH`. If you installed into a virtual environment, activate that environment
 first. `py -m pip show -f xcmd-tool` helps identify the package and launcher
@@ -66,9 +96,9 @@ location. If `py -m xcmd` reports `No module named xcmd`, check which Python or
 pipx environment was used to install the package.
 
 ```powershell
-xcmd --install-completion powershell --profile "$PROFILE"
+xc --install-completion powershell --profile "$PROFILE"
 # Enable it in the current terminal too:
-xcmd --completion powershell | Out-String | Invoke-Expression
+xc --completion powershell | Out-String | Invoke-Expression
 ```
 
 Passing `$PROFILE` targets the profile for the terminal you are using.
@@ -80,8 +110,8 @@ PowerShell's standard Tab cycles matches; Ctrl+Space opens the completion menu.
 ## Configuration
 
 ```console
-xcmd --config
-xcmd --edit
+xc --config
+xc --edit
 ```
 
 The default config is `$XDG_CONFIG_HOME/xcmd/commands.conf` (normally
@@ -124,11 +154,11 @@ PowerShell 7 is recommended when empty arguments or embedded double quotes matte
 ## Usage
 
 ```console
-xcmd --list
-xcmd --show push-SystemUI
-xcmd push-SystemUI
-xcmd pull /sdcard/example.txt ./example.txt
-xcmd --help
+xc --list
+xc --show push-SystemUI
+xc push-SystemUI
+xc pull /sdcard/example.txt ./example.txt
+xc --help
 ```
 
 Additional arguments are quoted as data and appended to the configured command.
@@ -138,7 +168,7 @@ complex argument placement directly in the configuration.
 Commands run in a child shell with the current working directory, environment
 and standard input/output. `cd` and `export`/environment assignments do not change
 the parent terminal. Relative paths are resolved from the directory where you
-invoke `xcmd`. The actual command is printed to stderr before execution; its exit
+invoke `xc`. The actual command is printed to stderr before execution; its exit
 status is returned. Completion only reads config and never runs its commands.
 `--init` creates a sample config without overwriting an existing file.
 `--edit` uses `VISUAL`, `EDITOR`, then `nano` on Linux or Notepad on Windows.
@@ -146,9 +176,9 @@ status is returned. Completion only reads config and never runs its commands.
 
 ## Existing Linux source installations
 
-The root `xcmd`, `completion.bash` and `install.py` keep the original source
+The root `xc`, `completion.bash` and `install.py` keep the original source
 installation working. `python3 install.py` installs the package source under
-`~/bin/cmd-tool`, links `~/bin/xcmd`, and retains existing private configuration.
+`~/bin/cmd-tool`, links `~/bin/xc` and the compatibility entry `~/bin/xcmd`, and retains existing private configuration.
 This compatibility installer is Linux-only; use the Python package on Windows.
 Keep this directory in place while using its source-checkout installation.
 
@@ -169,17 +199,17 @@ Tests that need an unavailable shell are explicitly skipped. See
 ## Release a version
 
 Update `pyproject.toml` and `src/xcmd/__init__.py` to the same version, commit the
-change, then push a matching tag (for example, `git push origin v0.1.1`). The tag
+change and the versioned installer URLs, then push a matching tag (for example, `git push origin v0.1.2`). The tag
 workflow waits for all Windows/Linux checks, builds and verifies the package,
 then publishes a GitHub Release with the wheel, source distribution and SHA256
-checksums. The release remains a draft until every asset has been uploaded.
+checksums, plus the two installer scripts. The release remains a draft until every asset has been uploaded.
 
 ## Uninstall
 
 Remove the marked xcmd completion block from your shell profile, then run
 `pipx uninstall xcmd-tool` (or uninstall with the package manager you used).
 Your command configuration is retained. Reload or reopen the terminal.
-For legacy source installations, also remove the managed `~/bin/xcmd` link.
+For legacy source installations, also remove the managed `~/bin/xc` and `~/bin/xcmd` links.
 
 ## License
 

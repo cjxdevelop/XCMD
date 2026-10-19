@@ -22,6 +22,7 @@ def install():
                   Path(os.environ.get('XDG_CONFIG_HOME') or home / '.config') /
                   'cmd-tool/commands.conf').expanduser()
     executable = home / 'bin/xcmd'
+    short_executable = home / 'bin/xc'
     rc = home / '.bashrc'
 
     # 在写文件前检查入口冲突和已有初始化块，避免覆盖无关程序。
@@ -29,6 +30,9 @@ def install():
         if not executable.is_symlink() or executable.resolve() not in (
                 (data / 'xcmd').resolve(), (old_data / 'xcmd').resolve()):
             raise ValueError(f'{executable} 已存在且不属于本工具，请先选择其他名称或迁移原文件')
+    if short_executable.exists() or short_executable.is_symlink():
+        if not short_executable.is_symlink() or short_executable.resolve() != (data / 'xc').resolve():
+            raise ValueError(f'{short_executable} 已存在且不属于本工具，请先选择其他名称或迁移原文件')
     original = rc.read_text() if rc.exists() else ''
     if original.count(BEGIN) != original.count(END) or original.count(BEGIN) > 1:
         raise ValueError(f'{rc} 中的 cmd-tool 标记不完整，请先修复')
@@ -46,13 +50,14 @@ def install():
         updated += '\n' + block + '\n'
 
     data.mkdir(parents=True, exist_ok=True)
-    for name in ('xcmd', 'completion.bash'):
+    for name in ('xc', 'xcmd', 'completion.bash'):
         if (source / name).resolve() != (data / name).resolve():
             shutil.copy2(source / name, data / name)
     if (source / 'src').resolve() != (data / 'src').resolve():
         shutil.copytree(source / 'src', data / 'src', dirs_exist_ok=True,
                         ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
     (data / 'xcmd').chmod(0o755)
+    (data / 'xc').chmod(0o755)
     config.parent.mkdir(parents=True, exist_ok=True)
     if not config.exists():
         # x 模式保证不会覆盖同时创建的用户配置。
@@ -63,6 +68,8 @@ def install():
         executable.unlink()
     if not executable.is_symlink():
         executable.symlink_to(data / 'xcmd')
+    if not short_executable.is_symlink():
+        short_executable.symlink_to(data / 'xc')
     # 仅移除旧版本创建且仍指向本工具的链接。
     for legacy, targets in ((home / '.local/bin/cmd', (data / 'cmd', old_data / 'cmd')),
                             (home / '.local/bin/xcmd', (data / 'xcmd', old_data / 'xcmd'))):
@@ -78,7 +85,7 @@ def install():
         rc.write_text(updated)
 
     print(f'配置文件：{config}')
-    print(f'程序入口：{executable}')
+    print(f'程序入口：{short_executable}（兼容入口：{executable}）')
     print('新终端自动生效；当前终端执行：')
     print(f'source {quoted}')
 
