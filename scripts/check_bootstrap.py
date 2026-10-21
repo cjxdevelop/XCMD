@@ -74,7 +74,7 @@ xc --complete custom
 def main():
     wheels = sorted(Path(sys.argv[1] if len(sys.argv) > 1 else 'dist').glob('xcmd_tool-*.whl'))
     if len(wheels) != 1:
-        raise SystemExit('Expected exactly one wheel in the build directory')
+        raise SystemExit('Expected exactly one wheel in the build directory: ' + repr(wheels))
     subprocess.run([sys.executable, '-m', 'pipx', '--version'], check=True)
     shells = ([path for name in ('pwsh', 'powershell') if (path := shutil.which(name))]
               if os.name == 'nt' else ['bash'])
@@ -87,8 +87,9 @@ def main():
 if __name__ == '__main__':
     try:
         main()
-    except Exception:
+    except (Exception, SystemExit):
         if os.environ.get('GITHUB_ACTIONS'):
-            details = traceback.format_exc().replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+            details = traceback.format_exc().encode('ascii', 'backslashreplace').decode('ascii')
+            details = details.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
             print('::error::' + details, flush=True)
         raise
