@@ -45,7 +45,7 @@ source {shlex.quote(str(ROOT / 'install.sh'))} {shlex.quote(str(wheel))} || exit
             command = f'''$ErrorActionPreference = 'Stop'
 $PROFILE = {quote(profile)}
 . {quote(ROOT / 'install.ps1')} -Package {quote(wheel)}
-if ((Get-Command xc).Source -ne {quote(bin_dir / 'xc.exe')}) {{ throw 'Unexpected launcher path' }}
+Write-Output ('BOOTSTRAP_LAUNCHER:' + (Get-Command xc).Source)
 if (@((TabExpansion2 'xc h' 4).CompletionMatches.CompletionText) -notcontains 'hello') {{ throw 'Current-session completion failed' }}
 [IO.File]::WriteAllText($env:XCMD_CONFIG, "custom -- echo preserved`n")
 . {quote(ROOT / 'install.ps1')} -Package {quote(wheel)}
@@ -62,6 +62,10 @@ xc --complete custom
         result = subprocess.run(args, env=env, capture_output=True, text=True, encoding='utf-8')
         if result.returncode:
             raise RuntimeError(result.stdout + '\n' + result.stderr)
+        if shell != 'bash':
+            launcher = next(line.split(':', 1)[1] for line in result.stdout.splitlines()
+                            if line.startswith('BOOTSTRAP_LAUNCHER:'))
+            assert Path(launcher).samefile(bin_dir / 'xc.exe'), launcher
         assert config.read_text(encoding='utf-8') == 'custom -- echo preserved\n'
         assert profile.read_text(encoding='utf-8-sig').count('# >>> xcmd completion >>>') == 1
         result = subprocess.run(future, env=env, capture_output=True, text=True, encoding='utf-8')
