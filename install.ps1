@@ -69,11 +69,7 @@ param(
     & $executable --version
     if ($LASTEXITCODE -ne 0) { throw 'xc: launcher verification failed.' }
     Write-Output 'xc: installation complete; Tab completion enabled in this terminal.'
-    if ($env:OS -eq 'Windows_NT' -and (Get-ExecutionPolicy) -eq 'Restricted') {
-        Write-Warning 'The current execution policy blocks profile scripts in future sessions. Ask your administrator which profile policy is permitted; xcmd has not changed the policy.'
-    } else {
-        Write-Output "Future PowerShell sessions load completion from: $CurrentProfile"
-    }
+    Write-Output "Completion profile for future sessions: $CurrentProfile"
     } finally {
         [Console]::OutputEncoding = $previousEncoding
         $env:PYTHONIOENCODING = $previousPythonEncoding
